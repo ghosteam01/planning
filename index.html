@@ -1,0 +1,1030 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Planning AchkounE</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --blue:#1a56db;--blue2:#1240a8;--orange:#f97316;--bg:#f0f4ff;
+  --white:#fff;--text:#1e293b;--gray:#64748b;--green:#10b981;
+  --red:#ef4444;--border:#e2e8f0;--shadow:0 4px 20px rgba(26,86,219,0.10);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+#app-loader{position:fixed;inset:0;background:white;z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+#app-loader .logo{font-weight:900;font-size:26px;color:var(--blue);}
+#app-loader .logo span{color:var(--orange);}
+#app-loader .sub{font-size:12px;color:#94a3b8;margin-top:8px;}
+#app-loader .sub-err{font-size:12px;color:var(--red);margin-top:8px;display:none;text-align:center;padding:0 24px;}
+#pin-screen{position:fixed;inset:0;background:linear-gradient(135deg,var(--blue),var(--blue2));z-index:9999;display:none;flex-direction:column;align-items:center;justify-content:center;padding:24px;}
+#pin-screen.on{display:flex;}
+.pin-logo{font-family:'Poppins',sans-serif;font-weight:900;font-size:28px;color:white;margin-bottom:6px;}
+.pin-logo span{color:#ffd700;}
+.pin-subtitle{font-size:12px;color:rgba(255,255,255,0.7);margin-bottom:32px;}
+.pin-card{background:white;border-radius:20px;padding:24px;width:100%;max-width:320px;box-shadow:0 20px 60px rgba(0,0,0,0.3);}
+.pin-title{font-size:14px;font-weight:700;color:var(--text);text-align:center;margin-bottom:16px;}
+.pin-dots{display:flex;justify-content:center;gap:12px;margin-bottom:20px;}
+.pin-dot{width:14px;height:14px;border-radius:50%;background:var(--border);transition:background 0.2s;}
+.pin-dot.filled{background:var(--blue);}
+.pin-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+.pin-btn{background:var(--bg);border:none;border-radius:12px;padding:16px;font-family:'Poppins',sans-serif;font-size:18px;font-weight:700;color:var(--text);cursor:pointer;}
+.pin-btn:active{background:var(--blue);color:white;}
+.pin-btn.del{background:#fee2e2;color:var(--red);}
+.pin-btn.del:active{background:var(--red);color:white;}
+.pin-error{color:var(--red);font-size:12px;font-weight:600;text-align:center;margin-top:12px;min-height:18px;}
+header{background:linear-gradient(135deg,var(--blue),var(--blue2));padding:12px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 16px rgba(26,86,219,0.3);}
+.logo{display:flex;align-items:center;gap:8px;}
+.logo-ico{background:var(--orange);border-radius:10px;width:34px;height:34px;display:flex;align-items:center;justify-content:center;font-size:18px;}
+.logo-txt{color:white;font-size:17px;font-weight:700;}
+.logo-txt span{color:#ffd700;}
+.role-badge{background:rgba(255,255,255,0.2);border-radius:20px;padding:4px 12px;color:white;font-size:11px;font-weight:700;}
+.role-badge.admin{background:rgba(255,215,0,0.3);color:#ffd700;}
+.role-badge.moniteur{background:rgba(255,255,255,0.2);color:white;}
+.main{padding:14px;max-width:600px;margin:0 auto;}
+.cal-card{background:white;border-radius:16px;padding:13px;box-shadow:var(--shadow);margin-bottom:14px;}
+.cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.cal-nav-btn{background:var(--bg);border:none;border-radius:8px;padding:7px 13px;font-family:'Poppins',sans-serif;font-size:12px;font-weight:600;color:var(--gray);cursor:pointer;}
+.cal-month{font-size:13px;font-weight:800;color:var(--blue);}
+.cal-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin-bottom:12px;}
+.cal-day{border-radius:10px;padding:6px 3px;text-align:center;cursor:pointer;background:var(--bg);}
+.cal-day.today{background:white;border:2px solid var(--blue);}
+.cal-day.selected{background:var(--blue);}
+.cal-day-name{font-size:9px;font-weight:600;color:var(--gray);}
+.cal-day.selected .cal-day-name{color:rgba(255,255,255,0.8);}
+.cal-day.today .cal-day-name{color:var(--gray);}
+.cal-day-num{font-size:14px;font-weight:800;color:var(--text);}
+.cal-day.selected .cal-day-num{color:white;}
+.cal-day.today .cal-day-num{color:var(--blue);}
+.cal-day-dot{height:14px;display:flex;align-items:center;justify-content:center;}
+.cal-day-dot span{background:var(--blue);color:white;border-radius:10px;font-size:9px;font-weight:700;padding:1px 5px;}
+.cal-day.selected .cal-day-dot span{background:white;color:var(--blue);}
+.cal-date-lbl{font-size:13px;font-weight:800;color:var(--blue);}
+.cal-actions{display:flex;justify-content:space-between;align-items:center;}
+.vcard{background:white;border-radius:16px;padding:14px;box-shadow:var(--shadow);margin-bottom:14px;}
+.vcard-title{font-size:14px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.vcard-ico{background:var(--bg);border-radius:8px;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:14px;}
+.vcard-count{font-size:11px;color:var(--gray);font-weight:600;margin-left:4px;}
+.seance-item{background:var(--bg);border-radius:10px;padding:11px 12px;margin-bottom:7px;border-left:3px solid var(--blue);}
+.seance-item.v2{border-left-color:var(--orange);}
+.seance-heure{font-weight:800;font-size:15px;color:var(--blue);}
+.seance-item.v2 .seance-heure{color:var(--orange);}
+.seance-nom{font-weight:700;font-size:13px;margin-top:1px;}
+.seance-tel{font-size:11px;color:var(--gray);}
+.empty-seance{text-align:center;padding:16px;color:var(--gray);font-size:12px;}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:5px;padding:10px 16px;border:none;border-radius:10px;font-family:'Poppins',sans-serif;font-size:13px;font-weight:600;cursor:pointer;text-decoration:none;-webkit-appearance:none;}
+.btn-blue{background:var(--blue);color:white;}
+.btn-green{background:var(--green);color:white;}
+.btn-red{background:var(--red);color:white;}
+.btn-orange{background:var(--orange);color:white;}
+.btn-gray{background:var(--bg);color:var(--gray);border:1.5px solid var(--border);}
+.btn-wa{background:#25d366;color:white;}
+.btn-sm{font-size:11px;padding:6px 11px;border-radius:8px;}
+.btn-full{width:100%;}
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;align-items:flex-end;justify-content:center;}
+.modal-bg.on{display:flex;}
+.modal{background:white;border-radius:22px 22px 0 0;padding:18px 16px;width:100%;max-width:600px;max-height:88vh;overflow-y:auto;}
+.mhandle{width:40px;height:4px;background:var(--border);border-radius:10px;margin:0 auto 16px;}
+.fg{display:flex;flex-direction:column;gap:11px;}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+label{display:block;font-size:10px;font-weight:700;color:var(--gray);margin-bottom:3px;text-transform:uppercase;letter-spacing:0.5px;}
+input,select,textarea{width:100%;padding:10px 13px;border:1.5px solid var(--border);border-radius:10px;font-family:'Poppins',sans-serif;font-size:13px;color:var(--text);background:var(--bg);outline:none;-webkit-appearance:none;}
+input:focus,select:focus{border-color:var(--blue);background:white;}
+.tab-bar{background:white;display:flex;border-bottom:2px solid var(--border);position:sticky;top:58px;z-index:99;overflow-x:auto;scrollbar-width:none;}
+.tab-bar::-webkit-scrollbar{display:none;}
+.tab-btn{flex:none;padding:12px 16px;border:none;background:none;font-family:'Poppins',sans-serif;font-size:12px;font-weight:600;color:var(--gray);cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;white-space:nowrap;}
+.tab-btn.on{color:var(--blue);border-bottom-color:var(--blue);}
+.page{display:none;}.page.on{display:block;}
+.client-item{background:white;border-radius:14px;padding:13px;margin-bottom:10px;box-shadow:var(--shadow);display:flex;justify-content:space-between;align-items:center;}
+.client-nom{font-weight:700;font-size:14px;}
+.client-tel{font-size:11px;color:var(--gray);margin-top:2px;}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(120px);background:var(--text);color:white;padding:11px 22px;border-radius:30px;font-size:12px;font-weight:600;z-index:300;white-space:nowrap;transition:transform 0.3s ease;}
+.toast.on{transform:translateX(-50%) translateY(0);}
+.sync-bar{background:#dbeafe;border-bottom:1px solid #93c5fd;padding:6px 16px;font-size:11px;font-weight:600;color:#1e40af;text-align:center;display:none;}
+.sync-bar.on{display:block;}
+.conn-bar{background:#dcfce7;border-bottom:1px solid #86efac;padding:5px 16px;font-size:11px;font-weight:600;color:#166534;text-align:center;display:none;}
+.conn-bar.on{display:block;}
+.search-box{position:relative;margin-bottom:10px;}
+.search-box input{padding-left:36px;}
+.search-ico{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:14px;}
+.spinner{display:inline-block;width:16px;height:16px;border:2px solid #93c5fd;border-top-color:#1a56db;border-radius:50%;animation:spin 0.8s linear infinite;vertical-align:middle;margin-right:6px;}
+@keyframes spin{to{transform:rotate(360deg)}}
+/* Pagination */
+.pagination{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:12px;flex-wrap:wrap;}
+.pg-btn{background:white;border:1.5px solid var(--border);border-radius:8px;padding:7px 13px;font-family:'Poppins',sans-serif;font-size:12px;font-weight:700;color:var(--gray);cursor:pointer;}
+.pg-btn.on{background:var(--blue);color:white;border-color:var(--blue);}
+.pg-btn:disabled{opacity:0.4;cursor:default;}
+.pg-info{font-size:11px;color:var(--gray);font-weight:600;}
+/* Import result box */
+.import-result{background:#f0fdf4;border:1.5px solid #86efac;border-radius:10px;padding:12px;font-size:12px;color:#166534;margin-top:8px;display:none;}
+.import-result.err{background:#fef2f2;border-color:#fca5a5;color:#991b1b;}
+</style>
+</head>
+<body>
+
+<!-- LOADER -->
+<div id="app-loader">
+  <div class="logo">Achkoun<span>E</span></div>
+  <div class="sub" id="loader-msg"><span class="spinner"></span>Connexion à Firebase...</div>
+  <div class="sub-err" id="loader-err"></div>
+</div>
+
+<!-- PIN -->
+<div id="pin-screen">
+  <div class="pin-logo">Achkoun<span>E</span></div>
+  <div class="pin-subtitle">Planning des voitures</div>
+  <div class="pin-card">
+    <div class="pin-title">Entrez votre code PIN</div>
+    <div class="pin-dots">
+      <div class="pin-dot" id="dot0"></div>
+      <div class="pin-dot" id="dot1"></div>
+      <div class="pin-dot" id="dot2"></div>
+      <div class="pin-dot" id="dot3"></div>
+    </div>
+    <div class="pin-pad">
+      <button class="pin-btn" onclick="pinPress('1')">1</button>
+      <button class="pin-btn" onclick="pinPress('2')">2</button>
+      <button class="pin-btn" onclick="pinPress('3')">3</button>
+      <button class="pin-btn" onclick="pinPress('4')">4</button>
+      <button class="pin-btn" onclick="pinPress('5')">5</button>
+      <button class="pin-btn" onclick="pinPress('6')">6</button>
+      <button class="pin-btn" onclick="pinPress('7')">7</button>
+      <button class="pin-btn" onclick="pinPress('8')">8</button>
+      <button class="pin-btn" onclick="pinPress('9')">9</button>
+      <button class="pin-btn" style="visibility:hidden"></button>
+      <button class="pin-btn" onclick="pinPress('0')">0</button>
+      <button class="pin-btn del" onclick="pinDel()">&#9003;</button>
+    </div>
+    <div class="pin-error" id="pin-error"></div>
+  </div>
+</div>
+
+<!-- SYNC BAR -->
+<div class="sync-bar" id="sync-bar"><span class="spinner"></span>Synchronisation...</div>
+<div class="conn-bar" id="conn-bar">&#10003; Connecté à Firebase</div>
+
+<!-- HEADER -->
+<header id="main-header" style="display:none;">
+  <div class="logo">
+    <div class="logo-ico">&#128663;</div>
+    <div class="logo-txt">Achkoun<span>E</span> Planning</div>
+  </div>
+  <div id="role-badge" class="role-badge"></div>
+</header>
+
+<!-- TAB BAR -->
+<div class="tab-bar" id="tab-bar" style="display:none;">
+  <button class="tab-btn on" id="tab-planning" onclick="showTab('planning',this)">&#128197; Planning</button>
+  <button class="tab-btn" id="tab-clients" onclick="showTab('clients',this)">&#128101; Conducteurs</button>
+  <button class="tab-btn" id="tab-params" style="display:none;" onclick="showTab('params',this)">&#9881; Paramètres</button>
+</div>
+
+<div class="main">
+  <!-- PAGE PLANNING -->
+  <div id="page-planning" class="page on">
+    <div class="cal-card">
+      <div class="cal-nav">
+        <button class="cal-nav-btn" onclick="shiftCal(-15)">&#9664; Préc</button>
+        <div class="cal-month" id="cal-month"></div>
+        <button class="cal-nav-btn" onclick="shiftCal(15)">Suiv &#9654;</button>
+      </div>
+      <div class="cal-grid" id="cal-grid"></div>
+      <div class="cal-actions">
+        <div class="cal-date-lbl" id="cal-date-lbl"></div>
+        <button class="btn btn-blue btn-sm" onclick="openAddSeance()">+ Ajouter</button>
+      </div>
+    </div>
+    <div class="vcard" id="vcard1">
+      <div class="vcard-title">
+        <div class="vcard-ico">&#128663;</div>
+        Voiture 1
+        <span class="vcard-count" id="v1-count"></span>
+      </div>
+      <div id="v1-list"></div>
+    </div>
+    <div class="vcard" id="vcard2">
+      <div class="vcard-title">
+        <div class="vcard-ico">&#128663;</div>
+        Voiture 2
+        <span class="vcard-count" id="v2-count"></span>
+      </div>
+      <div id="v2-list"></div>
+    </div>
+  </div>
+
+  <!-- PAGE CONDUCTEURS -->
+  <div id="page-clients" class="page">
+    <div class="search-box">
+      <span class="search-ico">&#128269;</span>
+      <input type="text" id="cl-search" placeholder="Rechercher un conducteur..." oninput="renderClients()">
+    </div>
+    <div id="cl-list"></div>
+    <div id="cl-pagination" class="pagination"></div>
+    <div id="add-client-wrap" style="display:none;margin-top:10px;">
+      <button class="btn btn-blue btn-full" onclick="openAddClient()">+ Nouveau conducteur</button>
+    </div>
+    <!-- Bouton import JSON — admin seulement -->
+    <div id="import-wrap" style="display:none;margin-top:8px;">
+      <button class="btn btn-orange btn-full" id="import-btn">&#128190; Importer depuis sauvegarde</button>
+      <input type="file" id="import-file" accept=".json" style="display:none;">
+    </div>
+  </div>
+
+  <!-- PAGE PARAMÈTRES (admin seulement) -->
+  <div id="page-params" class="page">
+    <div class="vcard">
+      <div class="vcard-title">
+        <div class="vcard-ico">&#128274;</div>
+        Codes PIN
+      </div>
+      <div class="fg">
+        <div>
+          <label>PIN Admin (actuel)</label>
+          <input type="password" id="p-admin-old" placeholder="Code actuel" maxlength="4">
+        </div>
+        <div>
+          <label>Nouveau PIN Admin</label>
+          <input type="number" id="p-admin-new" placeholder="4 chiffres" maxlength="4">
+        </div>
+        <button class="btn btn-blue btn-full" id="save-admin-pin-btn">Enregistrer PIN Admin</button>
+      </div>
+    </div>
+    <div class="vcard" style="margin-top:0;">
+      <div class="vcard-title">
+        <div class="vcard-ico">&#128100;</div>
+        PIN Moniteur
+      </div>
+      <div class="fg">
+        <div>
+          <label>Nouveau PIN Moniteur</label>
+          <input type="number" id="p-moniteur-new" placeholder="4 chiffres" maxlength="4">
+        </div>
+        <button class="btn btn-orange btn-full" id="save-moniteur-pin-btn">Enregistrer PIN Moniteur</button>
+      </div>
+    </div>
+    <div class="vcard" style="margin-top:0;border:2px solid #fca5a5;">
+      <div class="vcard-title" style="color:var(--red);">
+        <div class="vcard-ico" style="background:#fee2e2;">&#9888;</div>
+        Zone dangereuse
+      </div>
+      <p style="font-size:12px;color:var(--gray);margin-bottom:12px;">Supprime <strong>tous les conducteurs</strong> de la base de données. Cette action est irréversible.</p>
+      <button class="btn btn-red btn-full" id="delete-all-conducteurs-btn">🗑️ Supprimer tous les conducteurs</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="mbg" onclick="closeMif(event)">
+  <div class="modal"><div class="mhandle"></div><div id="mcontent"></div></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import {
+  getFirestore, collection, doc, addDoc, setDoc, getDoc, getDocs, deleteDoc, onSnapshot,
+  enableIndexedDbPersistence
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+/* ===== CONFIG FIREBASE ===== */
+var firebaseConfig = {
+  apiKey: "AIzaSyCeqD1MEDQyYFViCRG88xqjBcnsLtcsTa0",
+  authDomain: "achkoune-app.firebaseapp.com",
+  projectId: "achkoune-app",
+  storageBucket: "achkoune-app.firebasestorage.app",
+  messagingSenderId: "25360989092",
+  appId: "1:25360989092:web:3f762f64c360884c50df31"
+};
+
+var app = initializeApp(firebaseConfig);
+var db  = getFirestore(app);
+
+enableIndexedDbPersistence(db).catch(function(err){
+  console.warn("Persistance non activée:", err.code);
+});
+
+/* ===== ÉTAT GLOBAL ===== */
+var currentRole = "";
+var planDate    = new Date();
+var calStart    = new Date();
+var seances     = [];
+var conducteurs = [];
+var dbReady     = false;
+
+/* PINs — chargés depuis Firestore, fallback sur valeurs par défaut */
+var PIN_ADMIN    = "1234";
+var PIN_MONITEUR = "5678";
+var pinValue     = "";
+
+/* ===== CHARGEMENT DES PINS DEPUIS FIRESTORE ===== */
+async function loadPins() {
+  try {
+    var snap = await getDoc(doc(db, "config", "pins"));
+    if(snap.exists()) {
+      var data = snap.data();
+      if(data.admin)    PIN_ADMIN    = data.admin;
+      if(data.moniteur) PIN_MONITEUR = data.moniteur;
+    }
+  } catch(e) {
+    console.warn("PINs non chargés, utilisation des valeurs par défaut:", e.message);
+  }
+}
+
+/* ===== HELPERS DATE ===== */
+function planDateKey(d) {
+  var dd = d || planDate;
+  return dd.getFullYear() + "-" + (dd.getMonth()+1) + "-" + dd.getDate();
+}
+function fmtDateFr(d) {
+  var jours = ["Dim","Lun","Mar","Mer","Jeu","Ven","Sam"];
+  var mois  = ["Janvier","Février","Mars","Avril","Mai","Juin","Juillet","Août","Septembre","Octobre","Novembre","Décembre"];
+  return jours[d.getDay()]+" "+d.getDate()+" "+mois[d.getMonth()]+" "+d.getFullYear();
+}
+function today() {
+  var d = new Date();
+  return d.getDate()+"/"+(d.getMonth()+1)+"/"+d.getFullYear();
+}
+
+/* ===== PIN ===== */
+window.pinPress = function(digit) {
+  if(pinValue.length >= 4) return;
+  pinValue += digit;
+  updatePinDots();
+  if(pinValue.length === 4) setTimeout(checkPin, 150);
+};
+window.pinDel = function() {
+  pinValue = pinValue.slice(0,-1);
+  updatePinDots();
+  document.getElementById("pin-error").textContent = "";
+};
+function updatePinDots() {
+  for(var i=0;i<4;i++){
+    document.getElementById("dot"+i).className = i < pinValue.length ? "pin-dot filled" : "pin-dot";
+  }
+}
+function checkPin() {
+  if(pinValue === PIN_ADMIN)         { currentRole="admin";    enterApp(); }
+  else if(pinValue === PIN_MONITEUR) { currentRole="moniteur"; enterApp(); }
+  else {
+    document.getElementById("pin-error").textContent = "Code incorrect. Réessayez.";
+    pinValue = ""; updatePinDots();
+  }
+}
+function enterApp() {
+  document.getElementById("pin-screen").className = "";
+  document.getElementById("main-header").style.display = "flex";
+  document.getElementById("tab-bar").style.display    = "flex";
+  var badge = document.getElementById("role-badge");
+  if(currentRole === "admin") {
+    badge.textContent = "Admin";
+    badge.className   = "role-badge admin";
+    document.getElementById("tab-clients").style.display = "";
+    document.getElementById("tab-params").style.display  = "";
+    document.getElementById("add-client-wrap").style.display  = "block";
+    document.getElementById("import-wrap").style.display      = "block";
+    setupParamsPage();
+    setupImport();
+  } else {
+    badge.textContent = "Moniteur V2";
+    badge.className   = "role-badge moniteur";
+    document.getElementById("tab-clients").style.display = "";
+    document.getElementById("tab-params").style.display  = "none";
+    document.getElementById("add-client-wrap").style.display = "none";
+    document.getElementById("import-wrap").style.display     = "none";
+  }
+  renderPlanning();
+}
+
+/* ===== FIREBASE LISTENERS ===== */
+function showSyncBar(on) {
+  document.getElementById("sync-bar").className = on ? "sync-bar on" : "sync-bar";
+}
+function flashConnBar() {
+  var cb = document.getElementById("conn-bar");
+  cb.className = "conn-bar on";
+  setTimeout(function(){ cb.className = "conn-bar"; }, 2000);
+}
+
+function startListeners() {
+  showSyncBar(true);
+
+  onSnapshot(
+    collection(db, "planning_seances"),
+    function(snapshot) {
+      seances = [];
+      snapshot.forEach(function(d){ var data=d.data(); data.id=d.id; seances.push(data); });
+
+      if(!dbReady) {
+        dbReady = true;
+        /* Charger les PINs depuis Firestore avant d'afficher l'écran PIN */
+        loadPins().then(function(){
+          document.getElementById("app-loader").style.display = "none";
+          document.getElementById("pin-screen").className = "on";
+          planDate = new Date(planDate.getFullYear(), planDate.getMonth(), planDate.getDate());
+          calStart = new Date(planDate.getFullYear(), planDate.getMonth(), planDate.getDate());
+          renderCalendar();
+        });
+      }
+
+      showSyncBar(false);
+      if(currentRole) { flashConnBar(); renderPlanning(); }
+    },
+    function(err) {
+      console.error("Erreur séances:", err);
+      showSyncBar(false);
+      if(!dbReady) {
+        document.getElementById("loader-msg").style.display = "none";
+        var errEl = document.getElementById("loader-err");
+        errEl.style.display = "block";
+        errEl.textContent = "Impossible de se connecter à Firebase. Vérifiez votre connexion et rechargez la page.";
+      } else {
+        showToast("Erreur de connexion : " + err.message);
+      }
+    }
+  );
+
+  onSnapshot(
+    collection(db, "planning_conducteurs"),
+    function(snapshot) {
+      conducteurs = [];
+      snapshot.forEach(function(d){ var data=d.data(); data.id=d.id; conducteurs.push(data); });
+      if(currentRole) renderClients();
+    },
+    function(err) {
+      console.error("Erreur conducteurs:", err);
+      if(currentRole) showToast("Erreur conducteurs : " + err.message);
+    }
+  );
+}
+
+/* ===== CALENDRIER ===== */
+window.shiftCal  = function(delta) { calStart.setDate(calStart.getDate()+delta); renderCalendar(); };
+window.selectDay = function(y,m,d) { planDate=new Date(y,m,d); renderCalendar(); renderPlanning(); };
+
+function renderCalendar() {
+  var grid    = document.getElementById("cal-grid");
+  var monthEl = document.getElementById("cal-month");
+  var lblEl   = document.getElementById("cal-date-lbl");
+  if(!grid) return;
+  var jours    = ["Dim","Lun","Mar","Mer","Jeu","Ven","Sam"];
+  var moisArr  = ["Jan","Fév","Mar","Avr","Mai","Jun","Jul","Aoû","Sep","Oct","Nov","Déc"];
+  var now      = new Date();
+  var todayKey = now.getFullYear()+"-"+(now.getMonth()+1)+"-"+now.getDate();
+  var selKey   = planDateKey();
+  var endDate  = new Date(calStart); endDate.setDate(endDate.getDate()+14);
+  var monthTxt = moisArr[calStart.getMonth()]+" "+calStart.getFullYear();
+  if(endDate.getMonth() !== calStart.getMonth())
+    monthTxt = moisArr[calStart.getMonth()]+" - "+moisArr[endDate.getMonth()]+" "+endDate.getFullYear();
+  monthEl.textContent = monthTxt;
+  if(lblEl) lblEl.textContent = fmtDateFr(planDate);
+  grid.innerHTML = "";
+  for(var i=0;i<15;i++){
+    var d    = new Date(calStart.getFullYear(), calStart.getMonth(), calStart.getDate()+i);
+    var key  = d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate();
+    var count = 0;
+    for(var j=0;j<seances.length;j++){ if(seances[j].dateKey===key) count++; }
+    var isToday = key===todayKey; var isSel = key===selKey;
+    var cell = document.createElement("div");
+    cell.className = "cal-day"+(isSel?" selected":(isToday?" today":""));
+    var dn  = document.createElement("div"); dn.className="cal-day-name";  dn.textContent=jours[d.getDay()];
+    var num = document.createElement("div"); num.className="cal-day-num";  num.textContent=d.getDate();
+    var dot = document.createElement("div"); dot.className="cal-day-dot";
+    if(count>0){ var s=document.createElement("span"); s.textContent=count; dot.appendChild(s); }
+    cell.appendChild(dn); cell.appendChild(num); cell.appendChild(dot);
+    (function(yr,mo,dy){ cell.onclick=function(){ selectDay(yr,mo,dy); }; })(d.getFullYear(),d.getMonth(),d.getDate());
+    grid.appendChild(cell);
+  }
+}
+
+/* ===== PLANNING ===== */
+function renderPlanning() {
+  if(!document.getElementById("v1-list")) return;
+  renderCalendar();
+  var key = planDateKey(); var v1=[]; var v2=[];
+  for(var i=0;i<seances.length;i++){
+    if(seances[i].dateKey===key){
+      if(seances[i].voiture==="1") v1.push(seances[i]); else v2.push(seances[i]);
+    }
+  }
+  v1.sort(function(a,b){ return a.heure<b.heure?-1:1; });
+  v2.sort(function(a,b){ return a.heure<b.heure?-1:1; });
+  document.getElementById("v1-count").textContent = "("+v1.length+" séance(s))";
+  document.getElementById("v2-count").textContent = "("+v2.length+" séance(s))";
+  renderSeanceList("v1-list", v1, "1");
+  renderSeanceList("v2-list", v2, "2");
+}
+
+function renderSeanceList(elId, list, voiture) {
+  var el = document.getElementById(elId); if(!el) return;
+  if(list.length===0){ el.innerHTML="<div class=\"empty-seance\">Aucune séance prévue</div>"; return; }
+  var h = "";
+  for(var i=0;i<list.length;i++){
+    var s   = list[i];
+    var waN = "212"+(s.tel||"").replace(/^0/,"").replace(/\s/g,"");
+    h += "<div class=\"seance-item"+(voiture==="2"?" v2":"")+"\">";
+    h += "<div style=\"display:flex;justify-content:space-between;align-items:flex-start\">";
+    h += "<div style=\"flex:1\">";
+    var nomAff = (s.prenom||"") ? escHtml((s.prenom||"")+" "+(s.nom||"")) : escHtml(s.nom||"");
+    h += "<div class=\"seance-heure\">"+s.heure+"</div>";
+    h += "<div class=\"seance-nom\">"+nomAff+"</div>";
+    if(s.serial) h += "<div style=\"font-size:10px;font-weight:700;color:var(--blue);margin-top:1px;\">"+escHtml(s.serial)+"</div>";
+    h += "<div class=\"seance-tel\">"+(s.tel||"")+"</div>";
+    h += "</div>";
+    h += "<div style=\"display:flex;flex-direction:column;gap:5px;align-items:flex-end\">";
+    h += "<a href=\"https://wa.me/"+waN+"\" target=\"_blank\" class=\"btn btn-wa btn-sm\">WA</a>";
+    var canEdit = (currentRole==="admin") || (currentRole==="moniteur" && voiture==="2");
+    if(canEdit){
+      h += "<button class=\"btn btn-orange btn-sm\" id=\"edit-"+s.id+"\">Modif</button>";
+      h += "<button class=\"btn btn-red btn-sm\" id=\"del-"+s.id+"\">X</button>";
+    }
+    h += "</div></div></div>";
+  }
+  el.innerHTML = h;
+  for(var i=0;i<list.length;i++){
+    (function(sid, voitNum){
+      var canEdit2 = (currentRole==="admin") || (currentRole==="moniteur" && voitNum==="2");
+      if(canEdit2){
+        var editBtn = document.getElementById("edit-"+sid);
+        var delBtn  = document.getElementById("del-"+sid);
+        if(editBtn) editBtn.onclick = function(){ openEditSeance(sid); };
+        if(delBtn)  delBtn.onclick  = function(){ deleteSeance(sid); };
+      }
+    })(list[i].id, voiture);
+  }
+}
+
+/* ===== AJOUTER UNE SÉANCE ===== */
+window.openAddSeance = function() {
+  var selDate = planDate;
+  var smm = (selDate.getMonth()+1)<10 ? "0"+(selDate.getMonth()+1) : ""+(selDate.getMonth()+1);
+  var sdd = selDate.getDate()<10 ? "0"+selDate.getDate() : ""+selDate.getDate();
+  var dateVal = selDate.getFullYear()+"-"+smm+"-"+sdd;
+
+  var h = "<h2 style=\"font-size:15px;font-weight:800;margin-bottom:14px\">Ajouter une séance</h2>";
+  h += "<div class=\"fg\">";
+  h += "<div><label>Rechercher un conducteur</label>";
+  h += "<input id=\"as-search\" placeholder=\"Tapez le nom ou N° Auth...\" oninput=\"filterConducteurs()\" autocomplete=\"off\">";
+  h += "<div id=\"as-list\" style=\"max-height:150px;overflow-y:auto;border:1.5px solid var(--border);border-radius:10px;margin-top:5px;display:none;background:white;\"></div>";
+  h += "<div id=\"as-sel\" style=\"display:none;background:#dbeafe;border-radius:8px;padding:8px 10px;margin-top:5px;font-size:12px;font-weight:700;color:#1e40af;\"></div></div>";
+  h += "<div><label>Ou entrer manuellement</label>";
+  h += "<div class=\"frow\">";
+  h += "<div><label>Prénom</label><input id=\"as-prenom\" placeholder=\"Prénom\"></div>";
+  h += "<div><label>Nom</label><input id=\"as-nom\" placeholder=\"Nom\"></div>";
+  h += "</div></div>";
+  h += "<div><label>N° Authentification</label><input id=\"as-serial\" placeholder=\"Ex: Ai6268\"></div>";
+  h += "<div><label>Téléphone</label><input type=\"tel\" id=\"as-tel\" placeholder=\"0661372227\"></div>";
+  h += "<div><label>Date</label><input type=\"date\" id=\"as-date\" value=\""+dateVal+"\"></div>";
+  h += "<div class=\"frow\">";
+  h += "<div><label>Heure</label><input type=\"time\" id=\"as-heure\" value=\"09:00\"></div>";
+  if(currentRole==="moniteur"){
+    h += "<div><label>Voiture</label><select id=\"as-voiture\"><option value=\"2\">Voiture 2</option></select></div>";
+  } else {
+    h += "<div><label>Voiture</label><select id=\"as-voiture\"><option value=\"1\">Voiture 1</option><option value=\"2\">Voiture 2</option></select></div>";
+  }
+  h += "</div>";
+  h += "<div style=\"display:flex;gap:8px;margin-top:4px\">";
+  h += "<button class=\"btn btn-blue\" style=\"flex:1\" id=\"save-seance-btn\">Enregistrer</button>";
+  h += "<button class=\"btn btn-gray\" style=\"flex:1\" onclick=\"closeM()\">Annuler</button>";
+  h += "</div></div>";
+  document.getElementById("mcontent").innerHTML = h;
+  document.getElementById("mbg").className = "modal-bg on";
+  var saveBtn = document.getElementById("save-seance-btn");
+  if(saveBtn) saveBtn.onclick = function(){ saveSeance(); };
+};
+
+window.filterConducteurs = function() {
+  var q      = document.getElementById("as-search");
+  var listEl = document.getElementById("as-list");
+  if(!q||!listEl) return;
+  var val = q.value.toLowerCase().trim();
+  if(val.length===0){ listEl.style.display="none"; return; }
+  var filtered = conducteurs.filter(function(c){
+    return (c.nom||"").toLowerCase().indexOf(val)!==-1
+      || (c.prenom||"").toLowerCase().indexOf(val)!==-1
+      || (c.tel||"").indexOf(val)!==-1
+      || (c.serial||"").toLowerCase().indexOf(val)!==-1;
+  });
+  if(filtered.length===0){ listEl.style.display="none"; return; }
+  listEl.style.display = "block";
+  var h = "";
+  for(var i=0;i<filtered.length;i++){
+    var nomAff = filtered[i].prenom ? filtered[i].prenom+" "+filtered[i].nom : filtered[i].nom;
+    h += "<div id=\"cond-"+i+"\" style=\"padding:10px 12px;cursor:pointer;border-bottom:1px solid var(--border);font-size:13px;\">";
+    h += "<div style=\"font-weight:700\">"+escHtml(nomAff||"")+"</div>";
+    if(filtered[i].serial) h += "<div style=\"font-size:11px;color:var(--blue);font-weight:700;\">"+escHtml(filtered[i].serial)+"</div>";
+    h += "<div style=\"font-size:11px;color:var(--gray)\">"+(filtered[i].tel||"")+"</div></div>";
+  }
+  listEl.innerHTML = h;
+  for(var i=0;i<filtered.length;i++){
+    (function(c){
+      var idx = filtered.indexOf(c);
+      var el  = document.getElementById("cond-"+idx);
+      if(el) el.onclick = function(){
+        var prenomInp = document.getElementById("as-prenom");
+        var nomInp    = document.getElementById("as-nom");
+        var serialInp = document.getElementById("as-serial");
+        var telInp    = document.getElementById("as-tel");
+        var srch      = document.getElementById("as-search");
+        var selEl     = document.getElementById("as-sel");
+        var listEl2   = document.getElementById("as-list");
+        if(prenomInp) prenomInp.value = c.prenom||"";
+        if(nomInp)    nomInp.value    = c.nom||"";
+        if(serialInp) serialInp.value = c.serial||"";
+        if(telInp)    telInp.value    = c.tel||"";
+        if(srch)      srch.value      = "";
+        if(listEl2)   listEl2.style.display = "none";
+        var nomAff2 = c.prenom ? c.prenom+" "+c.nom : c.nom;
+        if(selEl){ selEl.style.display="block"; selEl.textContent=(nomAff2||"")+" | "+(c.serial||"")+" | "+(c.tel||""); }
+      };
+    })(filtered[i]);
+  }
+};
+
+async function saveSeance() {
+  var prenom  = (document.getElementById("as-prenom") ? document.getElementById("as-prenom").value.trim() : "");
+  var nom     = (document.getElementById("as-nom")    ? document.getElementById("as-nom").value.trim()    : "");
+  var serial  = (document.getElementById("as-serial") ? document.getElementById("as-serial").value.trim() : "");
+  var tel     = (document.getElementById("as-tel")    ? document.getElementById("as-tel").value.trim()    : "");
+  var heure   = (document.getElementById("as-heure")  ? document.getElementById("as-heure").value         : "");
+  var voiture = (document.getElementById("as-voiture")? document.getElementById("as-voiture").value        : "1");
+  var dateInput = (document.getElementById("as-date") ? document.getElementById("as-date").value           : "");
+  if(!nom && !prenom){ showToast("Entrez au moins un nom"); return; }
+  if(!heure){ showToast("Entrez une heure"); return; }
+  var dKey = planDateKey();
+  if(dateInput){ var dp=dateInput.split("-"); dKey=parseInt(dp[0])+"-"+parseInt(dp[1])+"-"+parseInt(dp[2]); }
+  closeM();
+  showToast("Enregistrement...");
+  try {
+    await addDoc(collection(db,"planning_seances"),{
+      prenom:prenom, nom:nom, serial:serial, tel:tel, heure:heure, voiture:voiture, dateKey:dKey, createdAt:today()
+    });
+    showToast("Séance ajoutée !");
+  } catch(e){ showToast("Erreur: "+e.message); console.error(e); }
+}
+
+/* ===== MODIFIER UNE SÉANCE ===== */
+function openEditSeance(id) {
+  var s = null;
+  for(var i=0;i<seances.length;i++){ if(seances[i].id===id){ s=seances[i]; break; } }
+  if(!s) return;
+  var dParts = (s.dateKey||"").split("-");
+  var yrR = dParts[0]||"";
+  var moR = dParts[1] ? (dParts[1].length<2?"0"+dParts[1]:dParts[1]) : "";
+  var dyR = dParts[2] ? (dParts[2].length<2?"0"+dParts[2]:dParts[2]) : "";
+  var dateVal = yrR+"-"+moR+"-"+dyR;
+  var h = "<h2 style=\"font-size:15px;font-weight:800;margin-bottom:14px\">Modifier la séance</h2>";
+  h += "<div class=\"fg\">";
+  h += "<div class=\"frow\">";
+  h += "<div><label>Prénom</label><input id=\"es-prenom\" value=\""+escHtml(s.prenom||"")+"\"></div>";
+  h += "<div><label>Nom</label><input id=\"es-nom\" value=\""+escHtml(s.nom||"")+"\"></div>";
+  h += "</div>";
+  h += "<div><label>N° Authentification</label><input id=\"es-serial\" value=\""+escHtml(s.serial||"")+"\"></div>";
+  h += "<div><label>Téléphone</label><input type=\"tel\" id=\"es-tel\" value=\""+(s.tel||"")+"\"></div>";
+  h += "<div><label>Date</label><input type=\"date\" id=\"es-date\" value=\""+dateVal+"\"></div>";
+  h += "<div class=\"frow\">";
+  h += "<div><label>Heure</label><input type=\"time\" id=\"es-heure\" value=\""+s.heure+"\"></div>";
+  if(currentRole==="moniteur"){
+    h += "<div><label>Voiture</label><select id=\"es-voiture\"><option value=\"2\">Voiture 2</option></select></div>";
+  } else {
+    h += "<div><label>Voiture</label><select id=\"es-voiture\"><option value=\"1\""+(s.voiture==="1"?" selected":"")+">Voiture 1</option><option value=\"2\""+(s.voiture==="2"?" selected":"")+">Voiture 2</option></select></div>";
+  }
+  h += "</div>";
+  h += "<div style=\"display:flex;gap:8px;margin-top:4px\">";
+  h += "<button class=\"btn btn-blue\" style=\"flex:1\" id=\"save-edit-btn\">Enregistrer</button>";
+  h += "<button class=\"btn btn-gray\" style=\"flex:1\" onclick=\"closeM()\">Annuler</button>";
+  h += "</div></div>";
+  document.getElementById("mcontent").innerHTML = h;
+  document.getElementById("mbg").className = "modal-bg on";
+  var saveBtn = document.getElementById("save-edit-btn");
+  if(saveBtn) saveBtn.onclick = function(){ saveEditSeance(id); };
+}
+
+async function saveEditSeance(id) {
+  var prenom  = document.getElementById("es-prenom").value.trim();
+  var nom     = document.getElementById("es-nom").value.trim();
+  var serial  = document.getElementById("es-serial").value.trim();
+  var tel     = document.getElementById("es-tel").value.trim();
+  var heure   = document.getElementById("es-heure").value;
+  var voiture = document.getElementById("es-voiture").value;
+  var dateInput = document.getElementById("es-date").value;
+  if(!nom && !prenom){ showToast("Nom et heure obligatoires"); return; }
+  if(!heure){ showToast("Nom et heure obligatoires"); return; }
+  var dKey = "";
+  if(dateInput){ var dp=dateInput.split("-"); dKey=parseInt(dp[0])+"-"+parseInt(dp[1])+"-"+parseInt(dp[2]); }
+  closeM();
+  showToast("Enregistrement...");
+  try {
+    await setDoc(doc(db,"planning_seances",id),{
+      prenom:prenom, nom:nom, serial:serial, tel:tel, heure:heure, voiture:voiture, dateKey:dKey, updatedAt:today()
+    });
+    showToast("Séance modifiée !");
+  } catch(e){ showToast("Erreur: "+e.message); console.error(e); }
+}
+
+async function deleteSeance(id) {
+  if(!confirm("Supprimer cette séance ?")) return;
+  try {
+    await deleteDoc(doc(db,"planning_seances",id));
+    showToast("Séance supprimée");
+  } catch(e){ showToast("Erreur: "+e.message); console.error(e); }
+}
+
+/* ===== CONDUCTEURS ===== */
+var clCurrentPage = 1;
+var CL_PER_PAGE   = 10;
+
+window.renderClients = function(page) {
+  var q   = document.getElementById("cl-search");
+  var val = q ? q.value.toLowerCase() : "";
+  var el  = document.getElementById("cl-list");    if(!el) return;
+  var pgEl= document.getElementById("cl-pagination"); 
+
+  /* Reset page à 1 si nouvelle recherche */
+  if(page === undefined) { clCurrentPage = 1; } else { clCurrentPage = page; }
+
+  var list = conducteurs.filter(function(c){
+    return !val
+      || (c.nom||"").toLowerCase().indexOf(val)!==-1
+      || (c.tel||"").indexOf(val)!==-1
+      || (c.serial||"").toLowerCase().indexOf(val)!==-1;
+  });
+
+  if(list.length===0){
+    el.innerHTML = "<div style=\"text-align:center;padding:20px;color:var(--gray);font-size:13px\">Aucun conducteur</div>";
+    if(pgEl) pgEl.innerHTML = "";
+    return;
+  }
+
+  var totalPages = Math.ceil(list.length / CL_PER_PAGE);
+  if(clCurrentPage > totalPages) clCurrentPage = totalPages;
+  var start = (clCurrentPage-1) * CL_PER_PAGE;
+  var page_list = list.slice(start, start + CL_PER_PAGE);
+
+  var h = "";
+  for(var i=0;i<page_list.length;i++){
+    var c = page_list[i];
+    h += "<div class=\"client-item\">";
+    h += "<div style=\"flex:1\">";
+    h += "<div class=\"client-nom\">"+(c.prenom ? escHtml(c.prenom)+" " : "")+escHtml(c.nom||"")+"</div>";
+    h += "<div style=\"font-size:11px;color:var(--blue);font-weight:700;margin-top:2px;\">N° Auth : "+(c.serial||"—")+"</div>";
+    h += "<div class=\"client-tel\">"+(c.tel||"")+"</div>";
+    h += "</div>";
+    h += "<div style=\"display:flex;gap:6px\">";
+    h += "<a href=\"tel:"+(c.tel||"")+"\" class=\"btn btn-green btn-sm\">Appel</a>";
+    if(currentRole==="admin") h += "<button class=\"btn btn-red btn-sm\" id=\"delc-"+c.id+"\">X</button>";
+    h += "</div></div>";
+  }
+  el.innerHTML = h;
+
+  if(currentRole==="admin"){
+    for(var i=0;i<page_list.length;i++){
+      (function(cid){
+        var btn = document.getElementById("delc-"+cid);
+        if(btn) btn.onclick = function(){ deleteClient(cid); };
+      })(page_list[i].id);
+    }
+  }
+
+  /* Pagination */
+  if(pgEl){
+    if(totalPages <= 1){ pgEl.innerHTML = ""; return; }
+    var ph = "";
+    ph += "<button class=\"pg-btn\" id=\"pg-prev\">&#9664;</button>";
+    for(var p=1;p<=totalPages;p++){
+      ph += "<button class=\"pg-btn"+(p===clCurrentPage?" on":"")+"\" id=\"pg-"+p+"\">"+p+"</button>";
+    }
+    ph += "<button class=\"pg-btn\" id=\"pg-next\">&#9654;</button>";
+    ph += "<span class=\"pg-info\">"+list.length+" conducteur(s)</span>";
+    pgEl.innerHTML = ph;
+
+    var prevBtn = document.getElementById("pg-prev");
+    var nextBtn = document.getElementById("pg-next");
+    if(prevBtn){ prevBtn.disabled = clCurrentPage===1; prevBtn.onclick = function(){ renderClients(clCurrentPage-1); }; }
+    if(nextBtn){ nextBtn.disabled = clCurrentPage===totalPages; nextBtn.onclick = function(){ renderClients(clCurrentPage+1); }; }
+    for(var p=1;p<=totalPages;p++){
+      (function(pn){
+        var pb = document.getElementById("pg-"+pn);
+        if(pb) pb.onclick = function(){ renderClients(pn); };
+      })(p);
+    }
+  }
+};
+
+window.openAddClient = function() {
+  var h = "<h2 style=\"font-size:15px;font-weight:800;margin-bottom:14px\">Nouveau conducteur</h2>";
+  h += "<div class=\"fg\">";
+  h += "<div class=\"frow\">";
+  h += "<div><label>Prénom *</label><input id=\"nc-prenom\" placeholder=\"Prénom\"></div>";
+  h += "<div><label>Nom *</label><input id=\"nc-nom\" placeholder=\"Nom\"></div>";
+  h += "</div>";
+  h += "<div><label>N° Authentification</label><input id=\"nc-serial\" placeholder=\"Ex: Ai6268\"></div>";
+  h += "<div><label>Téléphone</label><input type=\"tel\" id=\"nc-tel\" placeholder=\"0661372227\"></div>";
+  h += "<div style=\"display:flex;gap:8px;margin-top:4px\">";
+  h += "<button class=\"btn btn-blue\" style=\"flex:1\" id=\"save-client-btn\">Enregistrer</button>";
+  h += "<button class=\"btn btn-gray\" style=\"flex:1\" onclick=\"closeM()\">Annuler</button>";
+  h += "</div></div>";
+  document.getElementById("mcontent").innerHTML = h;
+  document.getElementById("mbg").className = "modal-bg on";
+  var btn = document.getElementById("save-client-btn");
+  if(btn) btn.onclick = function(){ saveClient(); };
+};
+
+async function saveClient() {
+  var prenom = document.getElementById("nc-prenom").value.trim();
+  var nom    = document.getElementById("nc-nom").value.trim();
+  var serial = document.getElementById("nc-serial").value.trim();
+  var tel    = document.getElementById("nc-tel").value.trim();
+  if(!prenom && !nom){ showToast("Entrez au moins un nom"); return; }
+  closeM();
+  showToast("Enregistrement...");
+  try {
+    await addDoc(collection(db,"planning_conducteurs"),{ prenom:prenom, nom:nom, serial:serial, tel:tel, createdAt:today() });
+    showToast("Conducteur ajouté !");
+  } catch(e){ showToast("Erreur: "+e.message); console.error(e); }
+}
+
+async function deleteClient(id) {
+  if(!confirm("Supprimer ce conducteur ?")) return;
+  try {
+    await deleteDoc(doc(db,"planning_conducteurs",id));
+    showToast("Supprimé !");
+  } catch(e){ showToast("Erreur: "+e.message); console.error(e); }
+}
+
+/* ===== IMPORT JSON SAUVEGARDE ===== */
+function setupImport() {
+  var btn  = document.getElementById("import-btn");
+  var file = document.getElementById("import-file");
+  if(!btn||!file) return;
+
+  btn.onclick = function(){ file.click(); };
+
+  file.onchange = function(e) {
+    var f = e.target.files[0];
+    if(!f) return;
+    var reader = new FileReader();
+    reader.onload = function(ev) {
+      try {
+        var data = JSON.parse(ev.target.result);
+        /* Chercher le tableau clients — l'app principale utilise la clé "clients"
+           mais on accepte aussi un tableau directement */
+        var liste = null;
+        if(Array.isArray(data))              liste = data;
+        else if(Array.isArray(data.clients)) liste = data.clients;
+        else if(Array.isArray(data.eleves))  liste = data.eleves;
+        else {
+          /* cherche la première clé qui contient un tableau */
+          var keys = Object.keys(data);
+          for(var k=0;k<keys.length;k++){
+            if(Array.isArray(data[keys[k]])){ liste = data[keys[k]]; break; }
+          }
+        }
+        if(!liste || liste.length===0){
+          showToast("Aucun client trouvé dans ce fichier"); return;
+        }
+        doImport(liste);
+      } catch(err) {
+        showToast("Fichier JSON invalide");
+        console.error(err);
+      }
+    };
+    reader.readAsText(f);
+    /* Reset input pour pouvoir réimporter le même fichier */
+    file.value = "";
+  };
+}
+
+async function doImport(liste) {
+  showToast("Import en cours...");
+
+  /* Index des téléphones déjà dans Firestore (déduplication) */
+  var telsExistants = {};
+  for(var i=0;i<conducteurs.length;i++){
+    var t = (conducteurs[i].tel||"").replace(/\s/g,"");
+    if(t) telsExistants[t] = true;
+  }
+
+  var ajoutes  = 0;
+  var ignores  = 0;  /* doublon ou statut non valide */
+  var erreurs  = 0;
+
+  for(var j=0;j<liste.length;j++){
+    var c = liste[j];
+
+    /* Filtrer uniquement les candidats en cours de formation */
+    var statut = (c.statut || "").toString().trim().toLowerCase();
+    if(statut !== "en-cours") { ignores++; continue; }
+
+    /* Nom complet = prenom + nom */
+    var prenom = (c.prenom || "").toString().trim();
+    var nomFam = (c.nom    || "").toString().trim();
+    var nomComplet = (prenom + " " + nomFam).trim();
+    if(!nomComplet) { ignores++; continue; }
+
+    /* Numéro d'authentification (serial) */
+    var serial = (c.serial || "").toString().trim();
+
+    /* Téléphone */
+    var tel = (c.tel || "").toString().replace(/\s/g,"").trim();
+
+    /* Déduplication par téléphone */
+    if(tel && telsExistants[tel]) { ignores++; continue; }
+
+    try {
+      await addDoc(collection(db,"planning_conducteurs"),{
+        nom:    nomComplet,
+        serial: serial,
+        tel:    tel,
+        createdAt: today()
+      });
+      if(tel) telsExistants[tel] = true;
+      ajoutes++;
+    } catch(e) {
+      console.error("Erreur import:", e);
+      erreurs++;
+    }
+  }
+
+  var msg = ajoutes+" candidat(s) en cours importé(s)";
+  if(ignores>0) msg += ", "+ignores+" ignoré(s)";
+  if(erreurs>0) msg += ", "+erreurs+" erreur(s)";
+  showToast("Import : "+msg);
+}
+
+/* ===== PAGE PARAMÈTRES — GESTION DES PINS ===== */
+function setupParamsPage() {
+  var btnAdmin     = document.getElementById("save-admin-pin-btn");
+  var btnMoniteur  = document.getElementById("save-moniteur-pin-btn");
+  if(!btnAdmin||!btnMoniteur) return;
+
+  btnAdmin.onclick = async function() {
+    var oldPin = document.getElementById("p-admin-old").value.trim();
+    var newPin = document.getElementById("p-admin-new").value.trim();
+    if(oldPin !== PIN_ADMIN){ showToast("Code actuel incorrect"); return; }
+    if(newPin.length !== 4 || isNaN(newPin)){ showToast("Le nouveau PIN doit avoir 4 chiffres"); return; }
+    try {
+      await setDoc(doc(db,"config","pins"),{ admin:newPin, moniteur:PIN_MONITEUR });
+      PIN_ADMIN = newPin;
+      document.getElementById("p-admin-old").value = "";
+      document.getElementById("p-admin-new").value = "";
+      showToast("PIN Admin mis à jour !");
+    } catch(e){ showToast("Erreur: "+e.message); }
+  };
+
+  btnMoniteur.onclick = async function() {
+    var newPin = document.getElementById("p-moniteur-new").value.trim();
+    if(newPin.length !== 4 || isNaN(newPin)){ showToast("Le PIN doit avoir 4 chiffres"); return; }
+    try {
+      await setDoc(doc(db,"config","pins"),{ admin:PIN_ADMIN, moniteur:newPin });
+      PIN_MONITEUR = newPin;
+      document.getElementById("p-moniteur-new").value = "";
+      showToast("PIN Moniteur mis à jour !");
+    } catch(e){ showToast("Erreur: "+e.message); }
+  };
+
+  var btnDelAll = document.getElementById("delete-all-conducteurs-btn");
+  if(btnDelAll) btnDelAll.onclick = async function() {
+    if(!confirm("⚠️ Supprimer TOUS les conducteurs ?\n\nCette action est irréversible.")) return;
+    if(!confirm("Dernière confirmation : êtes-vous sûr de vouloir vider toute la liste des conducteurs ?")) return;
+    showToast("Suppression en cours...");
+    try {
+      var snap = await getDocs(collection(db,"planning_conducteurs"));
+      var dels = [];
+      snap.forEach(function(d){ dels.push(deleteDoc(doc(db,"planning_conducteurs",d.id))); });
+      await Promise.all(dels);
+      showToast("✅ " + dels.length + " conducteur(s) supprimé(s)");
+    } catch(e){ showToast("Erreur: "+e.message); console.error(e); }
+  };
+}
+
+/* ===== UI HELPERS ===== */
+window.showTab = function(tab, btn) {
+  document.querySelectorAll(".page").forEach(function(p){ p.className="page"; });
+  document.querySelectorAll(".tab-btn").forEach(function(b){ b.className="tab-btn"; });
+  document.getElementById("page-"+tab).className = "page on";
+  if(btn) btn.className = "tab-btn on";
+  if(tab==="planning") renderPlanning();
+  if(tab==="clients")  renderClients();
+};
+window.closeM    = function() { document.getElementById("mbg").className="modal-bg"; };
+window.closeMif  = function(e){ if(e.target===document.getElementById("mbg")) closeM(); };
+window.showToast = function(msg) {
+  var t = document.getElementById("toast");
+  t.textContent = msg; t.className = "toast on";
+  setTimeout(function(){ t.className="toast"; }, 2800);
+};
+
+function escHtml(str) {
+  return (str||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+
+/* ===== INIT ===== */
+/* startListeners() est appelé UNE SEULE FOIS ici.
+   enterApp() ne le rappelle plus — les listeners sont déjà actifs. */
+planDate = new Date(planDate.getFullYear(), planDate.getMonth(), planDate.getDate());
+calStart = new Date(planDate.getFullYear(), planDate.getMonth(), planDate.getDate());
+startListeners();
+
+</script>
+</body>
+</html>
